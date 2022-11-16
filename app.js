@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const app = express()
-const PORT = 3000
+const PORT = process.env.PORT
 
 const routes = require('./routes')
 
@@ -19,7 +19,7 @@ app.engine('hbs', exphbs.engine({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
 
 app.use(session({
-  secret: 'ThisIsMySecret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true
 }))
