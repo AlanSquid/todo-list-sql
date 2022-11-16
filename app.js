@@ -10,9 +10,6 @@ const PORT = 3000
 
 const routes = require('./routes')
 
-const db = require('./models')
-const Todo = db.Todo
-const User = db.User
 
 app.engine('hbs', exphbs.engine({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
@@ -22,18 +19,22 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }))
+
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 
 usePassport(app)
+
 app.use(flash())
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.isAuthenticated()
   res.locals.user = req.user
   res.locals.success_msg = req.flash('success_msg')
   res.locals.warning_msg = req.flash('warning_msg')
+  res.locals.error = req.flash('error')
   next()
 })
+
 app.use(routes)
 
 app.listen(PORT, () => {

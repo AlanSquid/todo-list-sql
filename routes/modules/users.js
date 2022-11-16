@@ -3,23 +3,27 @@ const router = express.Router()
 const passport = require('passport')
 const bcrypt = require('bcryptjs')
 const db = require('../../models')
-const Todo = db.Todo
 const User = db.User
 
+// 到登入頁面
 router.get('/login', (req, res) => {
   res.render('login')
 })
 
+// POST 登入
 router.post('/login', passport.authenticate('local', {
   successRedirect: '/',
-  failureRedirect: 'users/login'
+  failureRedirect: '/users/login',
+  badRequestMessage: '帳號密碼不能為空白',
+  failureFlash: true
 }))
 
-
+// 到註冊頁面
 router.get('/register', (req, res) => {
   res.render('register')
 })
 
+// POST 註冊
 router.post('/register', (req, res) => {
   const { name, email, password, confirmPassword } = req.body
   const errors = []
@@ -42,6 +46,7 @@ router.post('/register', (req, res) => {
     if (user) {
       errors.push({ message: '這個 Email 已經註冊過了。' })
       return res.render('register', {
+        errors,
         name,
         email,
         password,
@@ -56,12 +61,17 @@ router.post('/register', (req, res) => {
         email,
         password: hash
       }))
-      .then(() => res.redirect('/'))
+      .then((user) => {
+        req.login(user, () => {
+          res.redirect('/')
+        })
+      })
       .catch(err => console.log(err))
   })
 
 })
 
+// 登出
 router.get('/logout', (req, res, next) => {  //passport版本0.6.0改寫方式，避免報錯
   req.logout(err => {
     if (err) { return next(err) }
